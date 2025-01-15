@@ -12,9 +12,11 @@ def generate_data_csv(rows=1000, filename="suinGeneratedData.csv"):
         "Varnost_paketnika": lambda: random.choice(["da", "ne"]),
         "Dostopnost_za_invalide": lambda: random.choice(["da", "ne"]),
         "Ocena_uporabnikov": lambda: round(random.uniform(1, 5), 1),
-        "Zaščita_pred_vremenskimi_vplivi": lambda: random.choice(["pod_streho", "v_zaprtem_prostoru", "na_prostem"]),
-        "Dostopnost_parkirišča": lambda: random.choice(["da", "ne"]),
+        "Zascita_pred_vremenskimi_vplivi": lambda: random.choice(["pod_streho", "v_zaprtem_prostoru", "na_prostem"]),
+        "Dostopnost_parkirisca": lambda: random.choice(["da", "ne"]),
         "Stanje_paketnika": lambda: random.choice(["deluje_pravilno", "v_okvari"]),
+        "Geolokacija_lat": lambda: round(random.uniform(-90, 90), 6),
+        "Geolokacija_lon": lambda: round(random.uniform(-180, 180), 6),
     }
 
     with open(filename, mode="w", newline="", encoding="utf-8") as file:
