@@ -121,19 +121,26 @@ public class Main {
                         resultsTxt.setText("Top Recommendations:\n");
                         statsTxt.setText("Classifier: " + selectedClassifier + "\n");
 
+                        long startTime = System.currentTimeMillis();
                         classifier.buildClassifier(arffData);
+                        long endTime = System.currentTimeMillis();
                         eval.crossValidateModel(classifier, arffData, 10, new Random(0));
                         statsTxt.append(eval.toSummaryString() + "\n");
+                        statsTxt.append("Model build time: " + (endTime - startTime) + " ms\n");
+
 
                         PriorityQueue<Recommendation> recommendationQueue = new PriorityQueue<>(Comparator.comparingDouble(Recommendation::getScore).reversed());
 
                         for (int i = 0; i < arffData.numInstances(); i++) {
                             double[] distribution = classifier.distributionForInstance(arffData.instance(i));
-                            double score = distribution[0];
+                            double suitabilityScore = distribution[0];
 
                             double lat = arffData.instance(i).value(arffData.attribute("Geolokacija_lat"));
                             double lon = arffData.instance(i).value(arffData.attribute("Geolokacija_lon"));
                             double distance = calculateDistance(userLat, userLon, lat, lon);
+
+                            // Adjust score to consider both suitability and distance
+                            double combinedScore = suitabilityScore - (distance * 0.1); // Penalize by 0.1 per km
 
                             String type = arffData.instance(i).stringValue(arffData.attribute("Vrsta_paketnika"));
                             boolean accessible = arffData.instance(i).stringValue(arffData.attribute("Dostopnost_za_invalide")).equals("da");
@@ -143,7 +150,7 @@ public class Main {
                             if (parkingCheck.isSelected() && !parking) continue;
                             if (!packageTypeDropdown.getSelectedItem().equals("<Any>") && !packageTypeDropdown.getSelectedItem().equals(type)) continue;
 
-                            recommendationQueue.add(new Recommendation(i, score, distance, type));
+                            recommendationQueue.add(new Recommendation(i, combinedScore, distance, type));
                         }
 
                         int count = 0;
